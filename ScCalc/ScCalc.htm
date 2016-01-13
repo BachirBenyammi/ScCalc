@@ -1,0 +1,354 @@
+<!--
+	Project: Benbac Scientific Calculator - ScCalc
+	Description: JavaScript based scientific calculator
+	Author : Bachir Benyammi
+	Email: benbac20@gmail.com
+	Date: 23/12/2003 
+-->
+<html>
+<head>
+	<title>Benbac Scientific Calculator</title>
+</head>
+<style>
+.SmallEdit{width: 20; font-size: 12; font-weight: bold;}
+.BigEdit{width: 45; font-size: 12; font-weight: bold;}
+.Edit{width: 200;}
+.SmallButton{width: 60;}
+</style>
+<script language="JavaScript">
+var Marche = false; // L'état de calculatrice
+var Vide = true; // L'état de saisie à partir de début
+var Result = 0; // Le Résultat de calcule  
+var Opr = ""; // Le type d'opération
+var Memory = 0; // La case mémoire
+
+function about () 
+{
+	alert ("Benbac Scientific Calculator - ScCalc \r\r" +
+		"     JavaScript based scientific calculator \r" +
+		"     Bachir Benyammi (benbac20@gmail.com) \r" + 
+		"     Date: 23/12/2003 \r"
+	)
+}
+
+function SaisieNum(Value) // La saisie d'un chiffre (0..9)
+{
+ if (Marche)
+ {
+  if (Vide)
+   Edit.value = Value.value
+  else 
+   Edit.value+= Value.value; 
+  Vide = false;
+ }
+}
+function SaisieOpr(Value) // La saisie d'une opération (-,+,/,*,...)
+{
+ if (Marche)
+ {
+  Result = Edit.value;
+  Vide = true;
+  Opr = Value.value;
+ }
+}
+function AfficheResult() // L'affichage de résultat
+{
+ Edit.value = Result;
+ Vide = true;
+}
+function CMD_MPlus() // L'addition
+{
+ if (Marche)
+ {
+  if (Edit.value != "0")
+  {
+   if (Memory == 0)
+   { 
+    Edit_Memory.value = "M";
+    Memory = Edit.value;
+   }  
+   else
+    Memory = Memory + eval(Edit.value); 
+   Vide = true;
+  }
+ }
+}
+function CMD_MMoins() // La soustraction
+{
+ if (Marche)
+ {
+  if (Edit.value == "0")
+  {
+   Edit_Memory.value = "";
+   Memory = 0;
+  }
+  else 
+   Memory = Edit.value;
+ }
+}
+function CMD_RM() // Le rappelle de case mémoire
+{
+ if (Marche)
+  Edit.value = Memory; 
+}
+function CMD_OFF() // L'arrêt de calculatrice
+{
+ if (Marche)
+ {
+  Edit.value = "";
+  Marche = false;
+  Vide = true;
+  Edit_Memory.value = "";
+  Edit_Drg.value = "";
+ }
+}
+function CMD_ON() // Lancement de calculatrice
+{
+ Edit.value = "0";
+ Edit_Drg.value = "DEG";
+ Edit_Error.value = "";
+ Marche = true;
+ Vide = true;
+ if (Memory != 0)
+ {
+  Edit_Memory.value = "M";
+  Vide = false;
+ }
+}
+function CMD_Egale() // Lorsqu'on clique sur '='
+{
+ if (Marche)
+ {
+  switch (Opr)
+  {
+   case "+": Result = eval(Result) + eval(Edit.value); break
+   case "-": Result-= Edit.value; break
+   case "/": Result/= Edit.value; break
+   case "*": Result*= Edit.value; break
+   case "Yx": Result = Math.pow(Result, Edit.value); break
+  }
+  if (Result > Math.pow(10,25))
+  {
+   Result = 0;
+   Edit_Error.value = "E";
+   Marche = false;
+  }
+  AfficheResult();  
+ } 
+}
+function CMD_Sign() // La virgule
+{
+ if (Marche)
+  Edit.value*= -1;
+}
+function CMD_Point()
+{
+ if (Marche)
+  if (Edit.value.indexOf('.') <= 0)
+   Edit.value+= '.';
+}
+function CMD_Del() // Lorsqu'on clique sur '->'
+{
+ if (Marche)
+ {
+  Value = Edit.value;
+  if (Value.length > 1)
+   Edit.value = Value.substr(0,Value.length-1)
+  else
+   Edit.value = "0"; 
+  Vide = true;
+ }
+}
+function CMD_Sqrt() // Le racine carrer
+{
+ if (Marche)
+  Edit.value = Math.sqrt(Edit.value)
+}
+function CMD_Sqr() // La puissance de 2
+{
+ if (Marche)
+  Edit.value*= Edit.value;
+}
+function CMD_PI()
+{
+ if (Marche)
+  Edit.value = Math.PI;
+}
+function CMD_Drg() // Le type d'angle DEG, RAD, GRAD
+{
+ if (Marche)
+  switch (Edit_Drg.value)
+  {
+   case "DEG": Edit_Drg.value = "RAD"; break
+   case "RAD": Edit_Drg.value = "GRAD"; break
+   case "GRAD": Edit_Drg.value = "DEG"; break
+  } 
+}
+function CMD_CDrg() // Le changement d'angle avec le calcule
+{
+ if (Marche)
+ {
+  switch (Edit_Drg.value)
+  {
+   case "DEG": Edit.value*= Math.PI / 180; break
+   case "RAD": Edit.value*= 200 / Math.PI; break
+   case "GRAD": Edit.value*= 36 / 40; break
+  } 
+  CMD_Drg();
+ }
+}
+function CMD_Ce() // Lorsqu'on clique sur 'CE'
+{
+ if (Marche)
+  Edit.value = "0";  
+}
+function CMD_Sin() // Le sin(x) 
+{
+ if (Marche)
+  switch (Edit_Drg.value)
+  {
+   case "DEG": Edit.value = Math.sin(Edit.value * Math.PI/180); break
+   case "RAD": Edit.value = Math.sin(Edit.value); break
+   case "GRAD": Edit.value = Math.sin(Edit.value * Math.PI/200); break
+  } 
+}
+function CMD_Cos() // Le cos(x)
+{
+ if (Marche)
+  switch (Edit_Drg.value)
+  {
+   case "DEG": Edit.value = Math.cos(Edit.value * Math.PI/180); break
+   case "RAD": Edit.value = Math.cos(Edit.value); break
+   case "GRAD": Edit.value = Math.cos(Edit.value * Math.PI/200); break
+  }	
+}
+function CMD_Tan() // Le tan(x)
+{
+ if (Marche)
+  switch (Edit_Drg.value)
+  {
+   case "DEG": Edit.value = Math.tan(Edit.value * Math.PI/180); break
+   case "RAD": Edit.value = Math.tan(Edit.value); break
+   case "GRAD": Edit.value = Math.tan(Edit.value * Math.PI/200); break
+  } 
+}
+function CMD_RND() // Le random(x)
+{
+ if (Marche)
+  Edit.value = Math.random();
+}
+function CMD_InvX() // La puissance de x
+{
+ if (Marche)
+  Edit.value = Math.pow(Edit.value, -1)
+}
+function CMD_Fact() // La factoriel de x
+{
+ if (Marche)
+  for (i = Edit.value; i > 1; i--)
+   Edit.value*= (i-1);
+}
+function CMD_Percent() // La percentage
+{
+ if (Marche)
+ {
+  switch (Opr)
+  {
+   case "+": Result = eval(Result) + (eval(Edit.value) * eval(Result) / 100); break
+   case "-": Result = eval(Result) - (eval(Edit.value) * eval(Result) / 100); break
+   case "/": Result*= 100 / eval(Edit.value); break
+   case "*": Result*= eval(Edit.value) / 100; break
+  } 
+  AfficheResult();
+ }
+}
+function CMD_Ln() // Le logarithme Ln(x)
+{
+ if (Marche)
+  Edit.value = Math.log(Edit.value)
+}
+function CMD_Log() // Le logarithme Log(x)
+{
+ if (Marche)
+  Edit.value = Math.log(Edit.value) / Math.log(10)
+}
+function CMD_Exp() // L'exponentielle
+{
+ if (Marche)
+  Edit.value = Math.exp(Edit.value)
+}
+function CMD_Round() // L'approche de x
+{
+ if (Marche)
+  Edit.value = Math.round(Edit.value)
+}
+function CMD_DixX() // 10 à la puissance de x
+{
+ if (Marche)
+  Edit.value = Math.pow(10, Edit.value)
+}
+</script>
+<body>
+<table border="1" bgcolor="#c0c0c0" bordercolor="#000000">
+<tr>
+<td colspan="4"><input type="Text" name="Edit" readonly class="Edit" dir="rtl"></td>
+<td>
+<input type="Text" name="Edit_Error" readonly class="SmallEdit">
+<input type="Text" name="Edit_Memory" readonly class="SmallEdit">
+</td>
+<td><input type="Text" name="Edit_Drg" readonly class="BigEdit"></td>
+<td colspan="2"><input type="button" value="About" class="SmallButton" onclick="about();"></td>
+<td><input type="button" value="ON/C" class="SmallButton" onclick="CMD_ON();"></td>
+<td><input type="button" value="OFF" class="SmallButton" onclick="CMD_OFF();"></td>
+</tr>
+<tr>
+<td><input type="button" value="7" class="SmallButton" onclick="SaisieNum(this);"></td>
+<td><input type="button" value="8" class="SmallButton" onclick="SaisieNum(this);"></td>
+<td><input type="button" value="9" class="SmallButton" onclick="SaisieNum(this);"></td>
+<td><input type="button" value="/" class="SmallButton" onclick="SaisieOpr(this);"></td>
+<td><input type="button" value="X-M" class="SmallButton" onclick="CMD_MMoins();"></td>
+<td><input type="button" value="Exp" class="SmallButton" onclick="CMD_Exp();"></td>
+<td><input type="button" value="n!" class="SmallButton" onclick="CMD_Fact();"></td>
+<td><input type="button" value="CE" class="SmallButton" onclick="CMD_Ce();"></td>
+<td><input type="button" value="sqrt(x)" class="SmallButton" onclick="CMD_Sqrt();"></td>
+<td><input type="button" value="sqr(x)" class="SmallButton" onclick="CMD_Sqr();"></td>
+</tr>
+<tr>
+<td><input type="button" value="4" class="SmallButton" onclick="SaisieNum(this);"></td>
+<td><input type="button" value="5" class="SmallButton" onclick="SaisieNum(this);"></td>
+<td><input type="button" value="6" class="SmallButton" onclick="SaisieNum(this);"></td>
+<td><input type="button" value="*" class="SmallButton" onclick="SaisieOpr(this);"></td>
+<td><input type="button" value="MR" class="SmallButton" onclick="CMD_RM();"></td>
+<td><input type="button" value="Log" class="SmallButton" onclick="CMD_Log();"></td>
+<td><input type="button" value="RND" class="SmallButton" onclick="CMD_RND();"></td>
+<td><input type="button" value="&para;" class="SmallButton" onclick="CMD_PI();"></td>
+<td><input type="button" value="1/x" class="SmallButton" onclick="CMD_InvX();"></td>
+<td><input type="button" value="Yx" class="SmallButton" onclick="SaisieOpr(this);"></td>
+</tr>
+<tr>
+<td><input type="button" value="1" class="SmallButton" onclick="SaisieNum(this);"></td>
+<td><input type="button" value="2" class="SmallButton" onclick="SaisieNum(this);"></td>
+<td><input type="button" value="3" class="SmallButton" onclick="SaisieNum(this);"></td>
+<td><input type="button" value="-" class="SmallButton" onclick="SaisieOpr(this);"></td>
+<td><input type="button" value="M+" class="SmallButton" onclick="CMD_MPlus();"></td>
+<td><input type="button" value="Ln" class="SmallButton" onclick="CMD_Ln();"></td>
+<td><input type="button" value="->" class="SmallButton" onclick="CMD_Del();"></td>
+<td><input type="button" value="%" class="SmallButton" onclick="CMD_Percent();"></td>
+<td><input type="button" value="Sin" class="SmallButton" onclick="CMD_Sin();"></td>
+<td><input type="button" value="Cos" class="SmallButton" onclick="CMD_Cos();"></td>
+</tr>
+<tr>
+<td><input type="button" value="0" class="SmallButton" onclick="SaisieNum(this);"></td>
+<td><input type="button" value="+/-" class="SmallButton" onclick="CMD_Sign();"></td>
+<td><input type="button" value="." class="SmallButton" onclick="CMD_Point();"></td>
+<td><input type="button" value="+" class="SmallButton" onclick="SaisieOpr(this);"></td>
+<td><input type="button" value="=" class="SmallButton" onclick="CMD_Egale();"></td>
+<td><input type="button" value="Round" class="SmallButton" onclick="CMD_Round();"></td>
+<td><input type="button" value="-&gt;DRG" class="SmallButton" onclick="CMD_Drg();"></td>
+<td><input type="button" value="DRG-&gt;" class="SmallButton" onclick="CMD_CDrg();"></td>
+<td><input type="button" value="Tan" class="SmallButton" onclick="CMD_Tan();"></td>
+<td><input type="button" value="10x" class="SmallButton" onclick="CMD_DixX();"></td>
+</tr>
+</table>
+</body>
+</html>
